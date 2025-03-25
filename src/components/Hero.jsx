@@ -28,8 +28,8 @@ const Hero = ({ input, SetInput, updated }) => {
           </h1>
         </div>
         <div className="inputs flex  lg:flex-row">
-          <div className="input m-1 flex  md:justify-start  md:w-3/12">
-            <div className="in mt-3 ">
+          <div className="input m-1 flex justify-center w-full  md:justify-start  md:w-3/12">
+            <div className="in mt-3 flex">
               <input
                 type="number"
                 className="border-2 border-dotted rounded-md p-1 md:p-2 lg:ml-3"
@@ -42,7 +42,7 @@ const Hero = ({ input, SetInput, updated }) => {
 
               <button
                 onClick={handleSave}
-                className="bg-blue-900 rounded-lg mx-2 px-2 lg:px-4 h-full  text-white "
+                className="bg-blue-900 rounded-lg mx-2 px-2 lg:px-4 py-2  text-white "
               >
                 Save
               </button>
