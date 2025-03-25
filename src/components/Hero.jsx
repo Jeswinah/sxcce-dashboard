@@ -10,14 +10,7 @@ const Hero = ({ input, SetInput, updated }) => {
 
   const handleSave = () => {
     localStorage.setItem("userMobile", input);
-    if (!input) {
-      alert("Enter a mobile number");
-    }
-    alert("Mobile number saved!");
   };
-
-  const dates = new Date().toString();
-  console.log(dates);
 
   return (
     <div className="w-full h-screen flex flex-col">
