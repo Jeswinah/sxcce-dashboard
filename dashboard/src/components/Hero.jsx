@@ -44,7 +44,12 @@ const Hero = ({ input, SetInput, updated }) => {
         </div>
       </div>
       <div>
-        <p className="mt-2 mb-1 text-center  md:text-lg md:absolute  top-3 right-10">Developed by <span className="  text-red-600 font-bold font-mono">Jeswin A.H </span></p>
+        <p className="mt-2 mb-1 text-center  md:text-lg md:absolute  top-3 right-10">
+          Developed by{" "}
+          <span className="  text-red-600 font-bold font-mono">
+            Jeswin A.H{" "}
+          </span>
+        </p>
       </div>
       <div className="content1 flex justify-center flex-1">
         <iframe
