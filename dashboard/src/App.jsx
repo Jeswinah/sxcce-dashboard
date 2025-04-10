@@ -9,7 +9,7 @@ const App = () => {
   const [showNavbar, setShowNavbar] = useState(false);
 
   return (
-    <div className="w-full flex">
+    <div className="w-full flex ">
       <button
         className="absolute top-0 md:hidden px-2 py-1 text-black"
         onClick={() => setShowNavbar(!showNavbar)}

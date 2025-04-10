@@ -8,7 +8,10 @@ const Navbar = ({ inputval, setInputval, setUpdated,setShowNavbar }) => {
     "Fees": "fees",
     "Internal Marks": "imarks",
     "Attendance": "absent",
-    "Sem Marks": "emarks"
+    "Sem Marks": "emarks",
+    // "Discipline":"discipline",
+    // "Events":"events",
+
   };
 
   const handler = (event) => {
@@ -19,14 +22,14 @@ const Navbar = ({ inputval, setInputval, setUpdated,setShowNavbar }) => {
   };
 
   return (
-    <nav className="w-full bg-gray-200 h-screen md:static fixed">
-      <img src={clglogo} alt="College Logo" className="pt-5 mx-auto" />
-      <div className="container flex flex-col justify-evenly h-5/6">
+    <nav className="w-full bg-gray-200 h-screen md:static fixed ">
+      <img src={clglogo} alt="College Logo" className="py-5 mx-auto" />
+      <div className="container flex flex-col justify-around h-9/12">
         {Object.keys(newarr).map((val, index) => (
           <button
             key={index}
             value={val}
-            className="bg-blue-900 text-white p-2 lg:w-3/4 lg:mx-auto rounded-lg mx-4 hover:bg-indigo-400"
+            className="bg-blue-900 text-white p-2 lg:w-10/12 lg:mx-auto rounded-lg mx-4 hover:bg-indigo-400"
             onClick={handler}
           >
             {val}
