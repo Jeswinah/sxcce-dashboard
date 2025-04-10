@@ -1,24 +1,23 @@
 import React from "react";
 import clglogo from "../assets/clg_logo.png";
 
-const Navbar = ({ inputval, setInputval, setUpdated,setShowNavbar }) => {
+const Navbar = ({ inputval, setInputval, setUpdated, setShowNavbar }) => {
   const newarr = {
-    "Dashboard": "dashboard",
+    Dashboard: "dashboard",
     "Student Details": "studview",
-    "Fees": "fees",
+    Fees: "fees",
     "Internal Marks": "imarks",
-    "Attendance": "absent",
+    Attendance: "absent",
     "Sem Marks": "emarks",
     // "Discipline":"discipline",
     // "Events":"events",
-
   };
 
   const handler = (event) => {
-    const v = event.target.value
-      setInputval(newarr[v]);
-      setUpdated(newarr[v]);
-      setShowNavbar(false);
+    const v = event.target.value;
+    setInputval(newarr[v]);
+    setUpdated(newarr[v]);
+    setShowNavbar(false);
   };
 
   return (
