@@ -9,19 +9,49 @@ const Hero = ({ input, SetInput, updated }) => {
   }, []);
 
   const handleSave = () => {
+   
     localStorage.setItem("userMobile", input);
+
+   
+    const now = new Date();
+    const formattedDate = now.toLocaleDateString(); // e.g., "4/11/2025"
+    const formattedTime = now.toLocaleTimeString(); // e.g., "10:45:30 AM"
+
+    const data = {
+      mobile: input,
+      date: formattedDate,
+      time: formattedTime,
+    };
+
+    
+    fetch(
+      "https://script.google.com/macros/s/AKfycbxePEVgI9JQxerJamtA2TjtKYmcRFldX9qjXRL5TGNMC7NQBWb8jxz0DCdh03ugk5UYvQ/exec",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        mode: "no-cors", 
+      }
+    )
+      .then(() => {
+        console.log("Saved successfully!");
+      })
+      .catch((err) => {
+        console.error("Error:", err);
+  
+      });
   };
 
   return (
-    <div className="w-full h-screen flex flex-col ">
+    <div className="w-full h-screen flex flex-col">
       <div className="main md:relative">
         <div className="content md:hidden">
           <h1 className="text-2xl font-semibold text-center">
             Student details
           </h1>
         </div>
-        <div className="inputs flex  lg:flex-row">
-          <div className="input m-1 flex justify-center w-full  md:justify-start  md:w-3/12">
+        <div className="inputs flex lg:flex-row">
+          <div className="input m-1 flex justify-center w-full md:justify-start md:w-3/12">
             <div className="in mt-3 flex">
               <input
                 type="number"
@@ -32,10 +62,9 @@ const Hero = ({ input, SetInput, updated }) => {
                 }}
                 value={input}
               />
-
               <button
                 onClick={handleSave}
-                className="bg-blue-900 rounded-lg mx-2 px-2 lg:px-4 py-2  text-white "
+                className="bg-blue-900 rounded-lg mx-2 px-2 lg:px-4 py-2 text-white"
               >
                 Save
               </button>
@@ -44,11 +73,9 @@ const Hero = ({ input, SetInput, updated }) => {
         </div>
       </div>
       <div>
-        <p className="mt-2 mb-1 text-center  md:text-lg md:absolute  top-3 right-10">
+        <p className="mt-2 mb-1 text-center md:text-lg md:absolute top-3 right-10">
           Developed by{" "}
-          <span className="  text-red-600 font-bold font-mono">
-            Jeswin A.H{" "}
-          </span>
+          <span className="text-red-600 font-bold font-mono">Jeswin A.H</span>
         </p>
       </div>
       <div className="content1 flex justify-center flex-1">
