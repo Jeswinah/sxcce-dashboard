@@ -9,28 +9,24 @@ const Hero = ({ input, SetInput, updated }) => {
   }, []);
 
   const handleSave = () => {
-   
     localStorage.setItem("userMobile", input);
 
-   
     const now = new Date();
-    const formattedDate = now.toLocaleDateString(); // e.g., "4/11/2025"
-    const formattedTime = now.toLocaleTimeString(); // e.g., "10:45:30 AM"
-
+    const formattedDate = now.toLocaleDateString();
+    const formattedTime = now.toLocaleTimeString();
     const data = {
       mobile: input,
       date: formattedDate,
       time: formattedTime,
     };
 
-    
     fetch(
-      "https://script.google.com/macros/s/AKfycbxePEVgI9JQxerJamtA2TjtKYmcRFldX9qjXRL5TGNMC7NQBWb8jxz0DCdh03ugk5UYvQ/exec",
+      "https://script.google.com/macros/s/AKfycbzDriMlP2jrCZ9RQCSQ6x9Ddx6ZMF8m4iqWkMcTbmtGkRWGYjAtFyGpC430Uj2Bia6P/exec",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-        mode: "no-cors", 
+        mode: "no-cors",
       }
     )
       .then(() => {
@@ -38,7 +34,6 @@ const Hero = ({ input, SetInput, updated }) => {
       })
       .catch((err) => {
         console.error("Error:", err);
-  
       });
   };
 
