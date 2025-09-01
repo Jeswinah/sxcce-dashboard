@@ -4,8 +4,8 @@ import Hero from "./components/Hero";
 
 const App = () => {
   const [input, setInput] = useState("");
-  const [inputval, setInputval] = useState("dashboard");
-  const [updated, setUpdated] = useState("dashboard");
+  const [inputval, setInputval] = useState("events");
+  const [updated, setUpdated] = useState("events");
   const [showNavbar, setShowNavbar] = useState(false);
 
   return (

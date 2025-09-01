@@ -3,14 +3,14 @@ import clglogo from "../assets/clg_logo.png";
 
 const Navbar = ({ inputval, setInputval, setUpdated, setShowNavbar }) => {
   const newarr = {
-    Dashboard: "dashboard",
+    "Events":"events",
     "Student Details": "studview",
     Fees: "fees",
     "Internal Marks": "imarks",
     Attendance: "absent",
     "Sem Marks": "emarks",
-    // "Discipline":"discipline",
-    // "Events":"events",
+    "Discipline":"discipline",
+    
   };
 
   const handler = (event) => {
