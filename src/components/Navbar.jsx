@@ -10,7 +10,7 @@ const Navbar = ({ inputval, setInputval, setUpdated, setShowNavbar }) => {
     Attendance: "absent",
     "Sem Marks": "emarks",
     "Discipline":"discipline",
-    
+    "CGPA Calculator": "cgpa",
   };
 
   const handler = (event) => {
@@ -21,7 +21,7 @@ const Navbar = ({ inputval, setInputval, setUpdated, setShowNavbar }) => {
   };
 
   return (
-    <nav className="w-full bg-gray-200 h-screen md:static fixed ">
+    <nav className="w-full bg-gray-200 h-screen fixed md:fixed md:left-0 md:top-0 z-50">
       <img src={clglogo} alt="College Logo" className="py-5 mx-auto" />
       <div className="container flex flex-col justify-around h-9/12">
         {Object.keys(newarr).map((val, index) => (

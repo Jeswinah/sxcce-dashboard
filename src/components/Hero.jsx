@@ -61,7 +61,7 @@ const Hero = ({ input, SetInput, updated }) => {
                 onClick={handleSave}
                 className="bg-blue-900 rounded-lg mx-2 px-2 lg:px-4 py-2 text-white"
               >
-                Save
+                Check
               </button>
             </div>
           </div>

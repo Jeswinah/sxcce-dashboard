@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
+import CGPACalculator from "./components/CGPACalculator";
 
 const App = () => {
   const [input, setInput] = useState("");
@@ -11,7 +12,7 @@ const App = () => {
   return (
     <div className="w-full flex">
       <button
-        className="absolute top-0 md:hidden px-2 py-1 text-black"
+        className="absolute top-0 md:hidden px-2 py-1 text-black z-50"
         onClick={() => setShowNavbar(!showNavbar)}
       >
         <svg
@@ -30,8 +31,8 @@ const App = () => {
         </svg>
       </button>
       <div
-        className={`fixed md:static top-0 left-0 h-full md:w-4/12 lg:w-2/12 w-3/4 bg-gray-200 shadow-lg 
-                    transition-all duration-300 ease-in-out 
+        className={`fixed top-0 left-0 h-full md:w-4/12 lg:w-2/12 w-3/4 bg-gray-200 shadow-lg 
+                    transition-all duration-300 ease-in-out z-40
                     ${
                       showNavbar
                         ? "translate-x-0"
@@ -45,7 +46,13 @@ const App = () => {
           setShowNavbar={setShowNavbar}
         />
       </div>
-      <Hero input={input} SetInput={setInput} updated={updated} />
+      <div className="w-full md:ml-[33.333%] lg:ml-[16.667%]">
+        {updated === "cgpa" ? (
+          <CGPACalculator mobile={input} />
+        ) : (
+          <Hero input={input} SetInput={setInput} updated={updated} />
+        )}
+      </div>
     </div>
   );
 };
