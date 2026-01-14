@@ -10,7 +10,7 @@ const Hero = ({ input, SetInput, updated }) => {
 
   const handleSave = () => {
     localStorage.setItem("userMobile", input);
-
+    alert("Loged in successfully!");
     const now = new Date();
     const formattedDate = now.toLocaleDateString();
     const formattedTime = now.toLocaleTimeString();
