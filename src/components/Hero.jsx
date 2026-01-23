@@ -1,6 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
-const Hero = ({ input, SetInput, updated }) => {
+const Hero = ({ input, SetInput, updated ,checkedNumber, setCheckedNumber}) => {
+
   useEffect(() => {
     const storedMobile = localStorage.getItem("userMobile");
     if (storedMobile) {
@@ -10,7 +11,8 @@ const Hero = ({ input, SetInput, updated }) => {
 
   const handleSave = () => {
     localStorage.setItem("userMobile", input);
-    alert("Loged in successfully!");
+    setCheckedNumber(input); // Only update checkedNumber on button click
+    alert("Logged in successfully!");
     const now = new Date();
     const formattedDate = now.toLocaleDateString();
     const formattedTime = now.toLocaleTimeString();
@@ -74,11 +76,16 @@ const Hero = ({ input, SetInput, updated }) => {
         </p>
       </div>
       <div className="content1 flex justify-center flex-1">
-        <iframe
-          src={`https://www.sxcce.edu.in/mobile/${updated}.php?ph=${input}`}
-          frameBorder="0"
-          className="w-full h-full"
-        ></iframe>
+        {checkedNumber ? (
+          <iframe
+            src={`https://www.sxcce.edu.in/mobile/${updated}.php?ph=${checkedNumber}`}
+            frameBorder="0"
+            className="w-full h-full"
+          ></iframe>
+        )  : (<p className="text-center mt-20 text-red-600 text-2xl font-Mono">
+          Please enter your mobile number to view Details.
+        </p>
+        )}
       </div>
     </div>
   );

@@ -238,11 +238,12 @@ const CGPACalculator = ({ mobile }) => {
     if (mobile) {
       fetchMarks();
     }
+    // eslint-disable-next-line
   }, [mobile]);
 
   const fetchMarks = async () => {
     if (!mobile) {
-      setError("Please enter your mobile number first and save it.");
+      setError("Please enter your mobile number and click Check.");
       return;
     }
 
@@ -478,35 +479,7 @@ const CGPACalculator = ({ mobile }) => {
   };
 
   if (!mobile) {
-    return (
-      <div className="w-full min-h-screen bg-gray-50 p-4 flex flex-col items-center justify-center">
-        <div className="bg-white rounded-xl shadow-lg p-8 text-center max-w-md">
-          <svg
-            className="w-16 h-16 mx-auto text-blue-900 mb-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
-            />
-          </svg>
-          <h2 className="text-xl font-bold text-gray-800 mb-2">
-            Mobile Number Required
-          </h2>
-          <p className="text-gray-600 mb-4">
-            Please enter your registered mobile number in the input field and
-            click Save to view your CGPA.
-          </p>
-          <p className="text-sm text-gray-500">
-            Go to any other section first, enter your mobile number and save it.
-          </p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (

@@ -8,6 +8,7 @@ const App = () => {
   const [inputval, setInputval] = useState("events");
   const [updated, setUpdated] = useState("events");
   const [showNavbar, setShowNavbar] = useState(false);
+    const [checkedNumber, setCheckedNumber] = useState("");
 
   return (
     <div className="w-full flex">
@@ -48,9 +49,9 @@ const App = () => {
       </div>
       <div className="w-full md:ml-[33.333%] lg:ml-[16.667%]">
         {updated === "cgpa" ? (
-          <CGPACalculator mobile={input} />
+          <CGPACalculator mobile={checkedNumber} />
         ) : (
-          <Hero input={input} SetInput={setInput} updated={updated} />
+          <Hero input={input} SetInput={setInput} updated={updated} checkedNumber={checkedNumber} setCheckedNumber={setCheckedNumber} />
         )}
       </div>
     </div>
