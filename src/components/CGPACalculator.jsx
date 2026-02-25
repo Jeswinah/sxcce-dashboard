@@ -238,11 +238,12 @@ const CGPACalculator = ({ mobile }) => {
     if (mobile) {
       fetchMarks();
     }
+    // eslint-disable-next-line
   }, [mobile]);
 
   const fetchMarks = async () => {
     if (!mobile) {
-      setError("Please enter your mobile number first and save it.");
+      setError("Please enter your mobile number and click Check.");
       return;
     }
 
@@ -479,32 +480,8 @@ const CGPACalculator = ({ mobile }) => {
 
   if (!mobile) {
     return (
-      <div className="w-full min-h-screen bg-gray-50 p-4 flex flex-col items-center justify-center">
-        <div className="bg-white rounded-xl shadow-lg p-8 text-center max-w-md">
-          <svg
-            className="w-16 h-16 mx-auto text-blue-900 mb-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
-            />
-          </svg>
-          <h2 className="text-xl font-bold text-gray-800 mb-2">
-            Mobile Number Required
-          </h2>
-          <p className="text-gray-600 mb-4">
-            Please enter your registered mobile number in the input field and
-            click Save to view your CGPA.
-          </p>
-          <p className="text-sm text-gray-500">
-            Go to any other section first, enter your mobile number and save it.
-          </p>
-        </div>
+      <div className="w-full min-h-screen bg-gray-50 p-4 overflow-auto flex items-center justify-center">
+        <div className="text-center text-gray-600 text-lg">Please enter your mobile number and  check.</div>
       </div>
     );
   }
@@ -690,74 +667,84 @@ const CGPACalculator = ({ mobile }) => {
       {/* Parsed Subjects Table */}
       {semesterData.length > 0 && (
         <div className="bg-white rounded-xl shadow-lg p-4 mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-blue-900">
-            Total Subjects ({semesterData.length} subjects)
-            </h2>
-            <p className="text-xs text-gray-500">Click credits to edit</p>
-          </div>
-          <div className="overflow-x-auto max-h-96 overflow-y-auto">
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-blue-50">
-                <tr>
-                  <th className="p-2 text-center w-16">Sem</th>
-                  <th className="p-2 text-left">Code</th>
-                  <th className="p-2 text-left">Subject Name</th>
-                  <th className="p-2 text-center">Credits</th>
-                  <th className="p-2 text-center">Grade</th>
-                  <th className="p-2 text-center">Points</th>
-                </tr>
-              </thead>
-              <tbody>
-                {semesterData.map((subject, index) => (
-                  <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : ""}>
-                    <td className="p-2 text-center font-bold text-blue-900">{subject.semester}</td>
-                    <td className="p-2 font-mono text-xs">{subject.code}</td>
-                    <td className="p-2 max-w-xs truncate" title={subject.name}>{subject.name}</td>
-                    <td className="p-2 text-center">
-                      {editingSubject === subject.code ? (
-                        <input
-                          type="number"
-                          min="1"
-                          max="10"
-                          defaultValue={subject.credits}
-                          className="w-12 border rounded px-1 py-0.5 text-center"
-                          autoFocus
-                          onBlur={(e) => updateSubjectCredits(subject.code, e.target.value, subject.name)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              updateSubjectCredits(subject.code, e.target.value, subject.name);
-                            } else if (e.key === 'Escape') {
-                              setEditingSubject(null);
-                            }
-                          }}
-                        />
-                      ) : (
-                        <span
-                          className="font-bold cursor-pointer hover:bg-blue-100 px-2 py-1 rounded"
-                          onClick={() => setEditingSubject(subject.code)}
-                          title="Click to edit credits"
-                        >
-                          {subject.credits}
-                        </span>
-                      )}
-                    </td>
-                    <td className="p-2 text-center">
-                      <span className={`px-2 py-1 rounded ${
-                        subject.gradePoint >= 9 ? 'bg-green-100 text-green-800' :
-                        subject.gradePoint >= 7 ? 'bg-blue-100 text-blue-800' :
-                        subject.gradePoint >= 5 ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
-                        {subject.grade}
-                      </span>
-                    </td>
-                    <td className="p-2 text-center">{subject.credits * subject.gradePoint}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {semesterData.length === 0 ? (
+            <div className="text-center text-red-600 text-lg">
+              No subjects found. Please check your input or try again later.<br />
+              If you used a roll number, marks may not be available or the server may be down.<br />
+              You can use the manual calculator below.
+            </div>
+          ) : (
+            <>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-blue-900">
+                Total Subjects ({semesterData.length} subjects)
+                </h2>
+                <p className="text-xs text-gray-500">Click credits to edit</p>
+              </div>
+              <div className="overflow-x-auto max-h-96 overflow-y-auto">
+                <table className="w-full text-sm">
+                  <thead className="sticky top-0 bg-blue-50">
+                    <tr>
+                      <th className="p-2 text-center w-16">Sem</th>
+                      <th className="p-2 text-left">Code</th>
+                      <th className="p-2 text-left">Subject Name</th>
+                      <th className="p-2 text-center">Credits</th>
+                      <th className="p-2 text-center">Grade</th>
+                      <th className="p-2 text-center">Points</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {semesterData.map((subject, index) => (
+                      <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : ""}>
+                        <td className="p-2 text-center font-bold text-blue-900">{subject.semester}</td>
+                        <td className="p-2 font-mono text-xs">{subject.code}</td>
+                        <td className="p-2 max-w-xs truncate" title={subject.name}>{subject.name}</td>
+                        <td className="p-2 text-center">
+                          {editingSubject === subject.code ? (
+                            <input
+                              type="number"
+                              min="1"
+                              max="10"
+                              defaultValue={subject.credits}
+                              className="w-12 border rounded px-1 py-0.5 text-center"
+                              autoFocus
+                              onBlur={(e) => updateSubjectCredits(subject.code, e.target.value, subject.name)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  updateSubjectCredits(subject.code, e.target.value, subject.name);
+                                } else if (e.key === 'Escape') {
+                                  setEditingSubject(null);
+                                }
+                              }}
+                            />
+                          ) : (
+                            <span
+                              className="font-bold cursor-pointer hover:bg-blue-100 px-2 py-1 rounded"
+                              onClick={() => setEditingSubject(subject.code)}
+                              title="Click to edit credits"
+                            >
+                              {subject.credits}
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-2 text-center">
+                          <span className={`px-2 py-1 rounded ${
+                            subject.gradePoint >= 9 ? 'bg-green-100 text-green-800' :
+                            subject.gradePoint >= 7 ? 'bg-blue-100 text-blue-800' :
+                            subject.gradePoint >= 5 ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            {subject.grade}
+                          </span>
+                        </td>
+                        <td className="p-2 text-center">{subject.credits * subject.gradePoint}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>
