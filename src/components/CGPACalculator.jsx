@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 // Grade to Grade Point mapping (2022 Regulation)
 const gradePoints = {
@@ -142,7 +142,7 @@ const defaultSubjectInfo = {
   "HS22501": { credits: 0, name: "Value Education II" },
 };
 
-const CGPACalculator = ({ mobile }) => {
+const CGPACalculator = ({ mobile, rollno }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [semesterData, setSemesterData] = useState([]);
@@ -153,6 +153,9 @@ const CGPACalculator = ({ mobile }) => {
   const [subjectInfo, setSubjectInfo] = useState(defaultSubjectInfo);
   const [editingSubject, setEditingSubject] = useState(null);
   const [showCreditEditor, setShowCreditEditor] = useState(false);
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
+  const requestIdRef = useRef(0);
+  const activeControllersRef = useRef([]);
 
   // Load saved subject info from localStorage
   useEffect(() => {
@@ -235,29 +238,129 @@ const CGPACalculator = ({ mobile }) => {
   ]);
 
   useEffect(() => {
-    if (mobile) {
+    if (mobile || rollno) {
       fetchMarks();
     }
     // eslint-disable-next-line
-  }, [mobile]);
+  }, [mobile, rollno]);
 
-  const fetchMarks = async () => {
-    if (!mobile) {
-      setError("Please enter your mobile number and click Check.");
+  const getCacheKey = () => {
+    if (rollno) return `rollno:${rollno}`;
+    if (mobile) return `mobile:${mobile}`;
+    return "";
+  };
+
+  const buildSemWiseData = (subjects) => {
+    const semWiseData = {};
+    subjects.forEach((s) => {
+      if (!semWiseData[s.semester]) semWiseData[s.semester] = [];
+      semWiseData[s.semester].push(s);
+    });
+    return semWiseData;
+  };
+
+  const applyParsedData = (subjects) => {
+    const sortedSubjects = [...subjects].sort(
+      (a, b) => a.semester - b.semester || a.code.localeCompare(b.code)
+    );
+    setSemesterData(sortedSubjects);
+    calculateCGPA(sortedSubjects, buildSemWiseData(sortedSubjects));
+  };
+
+  const loadCachedData = (cacheKey) => {
+    try {
+      const raw = localStorage.getItem(`cgpaCache:${cacheKey}`);
+      if (!raw) return false;
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed?.subjects) || parsed.subjects.length === 0) {
+        return false;
+      }
+      applyParsedData(parsed.subjects);
+      return true;
+    } catch (e) {
+      console.error("Failed to load cached CGPA data:", e);
+      return false;
+    }
+  };
+
+  const saveCachedData = (cacheKey, subjects) => {
+    try {
+      localStorage.setItem(
+        `cgpaCache:${cacheKey}`,
+        JSON.stringify({
+          timestamp: Date.now(),
+          subjects,
+        })
+      );
+    } catch (e) {
+      console.error("Failed to save cached CGPA data:", e);
+    }
+  };
+
+  const fetchAndParseProxy = async (proxy) => {
+    const controller = new AbortController();
+    activeControllersRef.current.push(controller);
+    const timeoutId = setTimeout(() => controller.abort(), 7000);
+
+    try {
+      const response = await fetch(proxy.url, { signal: controller.signal });
+      if (!response.ok) {
+        throw new Error(`Proxy request failed (${response.status})`);
+      }
+
+      let html;
+      if (proxy.isJson) {
+        const data = await response.json();
+        html = data.contents;
+      } else {
+        html = await response.text();
+      }
+
+      if (!html || html.length < 100) {
+        throw new Error("Invalid or empty HTML response");
+      }
+
+      const parsed = parseMarksData(html);
+      if (!parsed) {
+        throw new Error("Could not parse marks from response");
+      }
+
+      return parsed;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  };
+
+  const fetchMarks = async (options = {}) => {
+    const { silent = false } = options;
+
+    if (!mobile && !rollno) {
+      setError("Please enter your mobile number or roll number and click Check.");
       return;
     }
 
-    setLoading(true);
-    setError("");
+    const cacheKey = getCacheKey();
+    const hasCachedData = loadCachedData(cacheKey);
 
-    const targetUrl = `https://www.sxcce.edu.in/mobile/emarks.php?ph=${mobile}`;
-    
+    activeControllersRef.current.forEach((controller) => controller.abort());
+    activeControllersRef.current = [];
+
+    const currentRequestId = requestIdRef.current + 1;
+    requestIdRef.current = currentRequestId;
+
+    if (!silent) {
+      setLoading(true);
+      setError("");
+    }
+let targetUrl = "";
+    if(rollno){
+       targetUrl = `https://www.sxcce.edu.in/mobile/emarks.php?rollno=${rollno}`;
+    }else{
+      targetUrl = `https://www.sxcce.edu.in/mobile/emarks.php?ph=${mobile}`;
+    }
+
     // Try multiple CORS proxies
     const proxies = [
-      {
-        url: `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`,
-        isJson: true
-      },
       {
         url: `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
         isJson: false
@@ -266,45 +369,67 @@ const CGPACalculator = ({ mobile }) => {
         url: `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
         isJson: false
       },
+      {
+        url: `https://thingproxy.freeboard.io/fetch/${targetUrl}`,
+        isJson: false
+      },
+      {
+        url: `https://r.jina.ai/http://www.sxcce.edu.in/mobile/emarks.php?${rollno ? `rollno=${encodeURIComponent(rollno)}` : `ph=${encodeURIComponent(mobile)}`}`,
+        isJson: false
+      },
+      {
+        url: `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`,
+        isJson: true
+      },
     ];
 
-    for (const proxy of proxies) {
-      try {
-        console.log("Trying proxy:", proxy.url);
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
-        
-        const response = await fetch(proxy.url, { signal: controller.signal });
-        clearTimeout(timeoutId);
-        
-        if (response.ok) {
-          let html;
-          if (proxy.isJson) {
-            const data = await response.json();
-            html = data.contents;
-          } else {
-            html = await response.text();
-          }
-          
-          console.log("Fetched HTML length:", html?.length);
-          console.log("HTML preview:", html?.substring(0, 1000));
-          
-          if (html && html.length > 100) {
-            const success = parseMarksData(html);
-            if (success) {
-              return; // Successfully parsed
-            }
-          }
-        }
-      } catch (err) {
-        console.error("Proxy failed:", proxy.url, err.message);
+    try {
+      const parsed = await Promise.any(
+        proxies.map((proxy) => fetchAndParseProxy(proxy))
+      );
+
+      if (requestIdRef.current !== currentRequestId) {
+        return;
       }
+
+      applyParsedData(parsed.allSubjects);
+      saveCachedData(cacheKey, parsed.allSubjects);
+      if (!silent) {
+        setLoading(false);
+      }
+      return;
+    } catch (err) {
+      console.error("All proxies failed:", err);
+    } finally {
+      activeControllersRef.current.forEach((controller) => controller.abort());
+      activeControllersRef.current = [];
     }
 
     // All proxies failed
-    setError("Could not fetch marks automatically. Please scroll down to view your marks in the iframe and use the manual calculator.");
+    if (!silent) {
+      if (hasCachedData) {
+        setError("Live refresh failed. Showing your last saved result. You can retry or use manual calculator for latest changes.");
+      } else {
+        setError("Could not fetch marks automatically right now. Please retry in a moment or use the manual calculator.");
+      }
+    } else if (!hasCachedData) {
+      setError("Could not fetch marks automatically right now. Please retry in a moment or use the manual calculator.");
+    }
     setLoading(false);
   };
+
+  useEffect(() => {
+    if (!autoRefreshEnabled || (!mobile && !rollno)) {
+      return undefined;
+    }
+
+    const intervalId = setInterval(() => {
+      fetchMarks({ silent: true });
+    }, 30000);
+
+    return () => clearInterval(intervalId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoRefreshEnabled, mobile, rollno]);
 
   const parseMarksData = (html) => {
     try {
@@ -375,7 +500,7 @@ const CGPACalculator = ({ mobile }) => {
         const bodyText = doc.body?.textContent || html;
         
         // Look for patterns like: 1 BS22101 A+ NOV 2023
-        const pattern = /(\d)\s+([A-Z]{2}\d{5})\s+(O|A\+|A|B\+|B|C|U|RA|AB|W)/gi;
+        const pattern = /(?:^|\s)([1-8])\s+([A-Z]{2,3}\d{4,5})\s+(O|A\+|A|B\+|B|C|U|RA|AB|W)(?=\s|$)/gi;
         let match;
         
         while ((match = pattern.exec(bodyText)) !== null) {
@@ -402,24 +527,47 @@ const CGPACalculator = ({ mobile }) => {
         }
       }
 
+      // Method 3: If still empty, parse from HTML tag sequence directly
+      if (allSubjects.length === 0) {
+        console.log("Trying HTML sequence regex parsing...");
+        const htmlPattern = /<t[dh][^>]*>\s*([1-8])\s*<\/t[dh]>[\s\S]{0,200}?<t[dh][^>]*>\s*([A-Z]{2,3}\d{4,5})\s*<\/t[dh]>[\s\S]{0,200}?<t[dh][^>]*>\s*(O|A\+|A|B\+|B|C|U|RA|AB|W)\s*<\/t[dh]>/gi;
+        let htmlMatch;
+
+        while ((htmlMatch = htmlPattern.exec(html)) !== null) {
+          const semester = parseInt(htmlMatch[1]);
+          const subjectCode = htmlMatch[2].toUpperCase();
+          const grade = htmlMatch[3].toUpperCase();
+          const credits = getCreditsForSubject(subjectCode);
+          const subjectName = getSubjectName(subjectCode);
+
+          const subjectData = {
+            code: subjectCode,
+            name: subjectName,
+            credits: credits,
+            grade: grade,
+            gradePoint: gradePoints[grade],
+            semester: semester,
+          };
+
+          allSubjects.push(subjectData);
+
+          if (!semWiseData[semester]) {
+            semWiseData[semester] = [];
+          }
+          semWiseData[semester].push(subjectData);
+        }
+      }
+
       console.log("Total parsed subjects:", allSubjects.length);
       console.log("Parsed subjects:", allSubjects);
 
       if (allSubjects.length > 0) {
-        // Sort by semester then by code
-        allSubjects.sort((a, b) => a.semester - b.semester || a.code.localeCompare(b.code));
-        setSemesterData(allSubjects);
-        calculateCGPA(allSubjects, semWiseData);
-        setLoading(false);
-        return true;
-      } else {
-        setLoading(false);
-        return false;
+        return { allSubjects, semWiseData };
       }
+      return null;
     } catch (err) {
       console.error("Parse error:", err);
-      setLoading(false);
-      return false;
+      return null;
     }
   };
 
@@ -478,10 +626,10 @@ const CGPACalculator = ({ mobile }) => {
     return "from-blue-900 to-indigo-600";
   };
 
-  if (!mobile) {
+  if (!mobile && !rollno) {
     return (
       <div className="w-full min-h-screen bg-gray-50 p-4 overflow-auto flex items-center justify-center">
-        <div className="text-center text-gray-600 text-lg">Please enter your mobile number and  check.</div>
+        <div className="text-center text-gray-600 text-lg">Please enter your mobile number or roll number and click Check.</div>
       </div>
     );
   }
@@ -494,6 +642,18 @@ const CGPACalculator = ({ mobile }) => {
       <p className="text-center text-gray-600 mb-4">
         B.E. CSE - 2022 Regulation | Mobile: {mobile}
       </p>
+      <div className="flex items-center justify-center gap-2 mb-4 text-sm text-gray-700">
+        <input
+          id="auto-refresh-toggle"
+          type="checkbox"
+          checked={autoRefreshEnabled}
+          onChange={(e) => setAutoRefreshEnabled(e.target.checked)}
+          className="h-4 w-4"
+        />
+        <label htmlFor="auto-refresh-toggle" className="cursor-pointer">
+          Auto-refresh every 30s
+        </label>
+      </div>
 
       {loading && (
         <div className="text-center py-10">

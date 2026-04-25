@@ -49,7 +49,7 @@ const App = () => {
       </div>
       <div className="w-full md:ml-[33.333%] lg:ml-[16.667%]">
         {updated === "cgpa" ? (
-          <CGPACalculator mobile={checkedNumber} />
+          <CGPACalculator mobile={checkedNumber} rollno={input} />
         ) : (
           <Hero input={input} SetInput={setInput} updated={updated} checkedNumber={checkedNumber} setCheckedNumber={setCheckedNumber} />
         )}

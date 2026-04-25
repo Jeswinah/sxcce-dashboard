@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 
 const Hero = ({ input, SetInput, updated, checkedNumber, setCheckedNumber }) => {
-  const [msg, setMsg] = React.useState("Enter a valid roll number or mobile number");
   useEffect(() => {
     const storedMobile = localStorage.getItem("userMobile");
     if (storedMobile) {
@@ -12,14 +11,13 @@ const Hero = ({ input, SetInput, updated, checkedNumber, setCheckedNumber }) => 
   const handleSave = () => {
     if (!input || input.length < 4) {
       alert("Enter a valid roll number or mobile number");
-      setMsg("Enter a valid roll number or mobile number");
       return;
     }
 
     localStorage.setItem("userMobile", input);
     setCheckedNumber(input);
     alert("Logged in successfully!");
-      setMsg("")
+    
 
     const now = new Date();
     const data = {
@@ -58,6 +56,8 @@ const Hero = ({ input, SetInput, updated, checkedNumber, setCheckedNumber }) => 
   } else if (input && input.length === 10) {
    
     iframeSrc = `https://www.sxcce.edu.in/mobile/${updated}.php?ph=${input}`;
+  }else{
+    iframeSrc = `https://www.sxcce.edu.in/mobile/events.php`;
   }
 
   return (
@@ -86,19 +86,9 @@ const Hero = ({ input, SetInput, updated, checkedNumber, setCheckedNumber }) => 
             </div>
           </div>
         </div>
-      </div>
-      <div>
-        <p className="mt-2 mb-1 text-center md:text-lg md:absolute top-3 right-10">
-          Developed by{" "}
-          <span className="text-red-600 font-bold font-mono">Jeswin A.H</span>
-        </p>
-      </div>
-         <div>
-        {
-          msg && (
-            <h1 className="text-center text-red-500 font-semibold text-xl">{msg}</h1>
-          )
-        }
+    
+       
+       
       </div>
       <div className="content1 flex justify-center flex-1">
         {iframeSrc && (

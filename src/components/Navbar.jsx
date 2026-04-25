@@ -28,7 +28,7 @@ const Navbar = ({ inputval, setInputval, setUpdated, setShowNavbar }) => {
           <button
             key={index}
             value={val}
-            className="bg-blue-900 text-white p-2 lg:w-10/12 lg:mx-auto rounded-lg mx-4 hover:bg-indigo-400"
+            className="bg-blue-900 text-white p-2 lg:w-10/12 lg:mx-auto rounded-lg mx-4 hover:bg-indigo-400 cursor-pointer"
             onClick={handler}
           >
             {val}
